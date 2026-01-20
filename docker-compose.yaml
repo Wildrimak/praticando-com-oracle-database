@@ -1,0 +1,17 @@
+services:
+  oracle:
+    image: gvenzl/oracle-free:latest
+    container_name: oracle-tuning-lab
+    environment:
+      - ORACLE_PASSWORD=admin
+      - ORACLE_DATABASE=tuninglab
+    ports:
+      - "1521:1521"
+    volumes:
+      - ./oradata:/opt/oracle/oradata
+      - ./scripts:/container-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /opt/oracle/oradata/dbconfig/$ORACLE_SID/post-setup-complete || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
