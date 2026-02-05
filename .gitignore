@@ -1,0 +1,20 @@
+# Oracle data (volumes docker)
+/oradata
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Claude Code (local settings)
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
