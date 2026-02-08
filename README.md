@@ -10,7 +10,7 @@ docker compose up -d
 
 Aguarde o banco inicializar (~3-5 minutos na primeira vez). O container executa automaticamente:
 1. Cria as tabelas
-2. Popula com **~1.1 milhão de registros**
+2. Popula com **~222 milhões de registros (~11GB)**
 3. Coleta estatísticas
 
 ## Conexão
@@ -30,12 +30,12 @@ docker exec -it oracle-tuning-lab sqlplus tuning_lab/tuning123@//localhost:1521/
 
 ## Estrutura do Banco
 
-| Tabela | Registros | Descrição |
-|--------|-----------|-----------|
-| clientes | 100.000 | Tabela principal para estudo |
-| pedidos | 200.000 | Para exercícios de JOIN |
-| itens_pedido | 500.000 | Relacionamento N:N |
-| logs_acesso | 300.000 | Tabela de alto volume |
+| Tabela | Registros | Tamanho | Descrição |
+|--------|-----------|---------|-----------|
+| clientes | 9.500.000 | ~1 GB | Tabela principal para estudo |
+| pedidos | 46.000.000 | ~2 GB | Para exercícios de JOIN |
+| itens_pedido | 128.000.000 | ~5 GB | Relacionamento N:N |
+| logs_acesso | 38.500.000 | ~3 GB | Tabela de alto volume |
 
 ## Exercícios
 
@@ -148,7 +148,7 @@ oracle-tuning-lab/
 ├── docker-compose.yaml      # Configuração do container
 ├── scripts/
 │   ├── 01_create_tables.sql # Criação das tabelas
-│   ├── 02_populate_data.sql # Carga de dados (6.5M registros)
+│   ├── 02_populate_data.sql # Carga de dados (~222M registros, ~11GB)
 │   └── 03_collect_stats.sql # Coleta de estatísticas
 ├── exercicios/
 │   ├── 01_explain_plan_basico.sql

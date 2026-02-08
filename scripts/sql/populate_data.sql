@@ -61,10 +61,10 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('=== INICIANDO CARGA DE DADOS ===');
     DBMS_OUTPUT.PUT_LINE('Tempo de inicio: ' || TO_CHAR(SYSDATE, 'HH24:MI:SS'));
 
-    -- CLIENTES: 100.000 registros
-    DBMS_OUTPUT.PUT_LINE('Inserindo 100.000 clientes...');
+    -- CLIENTES: 9.500.000 registros (~1GB)
+    DBMS_OUTPUT.PUT_LINE('Inserindo 9.500.000 clientes...');
 
-    FOR i IN 1..100000 LOOP
+    FOR i IN 1..9500000 LOOP
         v_nome := arr_nomes(TRUNC(DBMS_RANDOM.VALUE(1, 13))) || ' ' || arr_sobrenomes(TRUNC(DBMS_RANDOM.VALUE(1, 11)));
 
         INSERT INTO clientes (id, nome, email, cpf, estado, cidade, data_cadastro, status, valor_limite)
@@ -80,7 +80,7 @@ BEGIN
             ROUND(DBMS_RANDOM.VALUE(500, 50000), 2)
         );
 
-        IF MOD(i, 25000) = 0 THEN
+        IF MOD(i, 250000) = 0 THEN
             COMMIT;
             DBMS_OUTPUT.PUT_LINE('  ' || i || ' clientes inseridos...');
         END IF;
@@ -88,20 +88,20 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Clientes: OK');
 
-    -- PEDIDOS: 200.000 registros
-    DBMS_OUTPUT.PUT_LINE('Inserindo 200.000 pedidos...');
+    -- PEDIDOS: 46.000.000 registros (~2GB)
+    DBMS_OUTPUT.PUT_LINE('Inserindo 46.000.000 pedidos...');
 
-    FOR i IN 1..200000 LOOP
+    FOR i IN 1..46000000 LOOP
         INSERT INTO pedidos (id, cliente_id, data_pedido, valor_total, status)
         VALUES (
             i,
-            TRUNC(DBMS_RANDOM.VALUE(1, 100001)),
+            TRUNC(DBMS_RANDOM.VALUE(1, 9500001)),
             SYSDATE - TRUNC(DBMS_RANDOM.VALUE(0, 730)),
             ROUND(DBMS_RANDOM.VALUE(50, 5000), 2),
             arr_status_pedido(TRUNC(DBMS_RANDOM.VALUE(1, 6)))
         );
 
-        IF MOD(i, 50000) = 0 THEN
+        IF MOD(i, 500000) = 0 THEN
             COMMIT;
             DBMS_OUTPUT.PUT_LINE('  ' || i || ' pedidos inseridos...');
         END IF;
@@ -109,20 +109,20 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Pedidos: OK');
 
-    -- ITENS PEDIDO: 500.000 registros
-    DBMS_OUTPUT.PUT_LINE('Inserindo 500.000 itens de pedido...');
+    -- ITENS PEDIDO: 128.000.000 registros (~5GB)
+    DBMS_OUTPUT.PUT_LINE('Inserindo 128.000.000 itens de pedido...');
 
-    FOR i IN 1..500000 LOOP
+    FOR i IN 1..128000000 LOOP
         INSERT INTO itens_pedido (id, pedido_id, produto, quantidade, valor_unit)
         VALUES (
             i,
-            TRUNC(DBMS_RANDOM.VALUE(1, 200001)),
+            TRUNC(DBMS_RANDOM.VALUE(1, 46000001)),
             'Produto ' || TRUNC(DBMS_RANDOM.VALUE(1, 10000)),
             TRUNC(DBMS_RANDOM.VALUE(1, 10)),
             ROUND(DBMS_RANDOM.VALUE(10, 500), 2)
         );
 
-        IF MOD(i, 100000) = 0 THEN
+        IF MOD(i, 1000000) = 0 THEN
             COMMIT;
             DBMS_OUTPUT.PUT_LINE('  ' || i || ' itens inseridos...');
         END IF;
@@ -130,14 +130,14 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Itens pedido: OK');
 
-    -- LOGS: 300.000 registros
-    DBMS_OUTPUT.PUT_LINE('Inserindo 300.000 logs de acesso...');
+    -- LOGS: 38.500.000 registros (~3GB)
+    DBMS_OUTPUT.PUT_LINE('Inserindo 38.500.000 logs de acesso...');
 
-    FOR i IN 1..300000 LOOP
+    FOR i IN 1..38500000 LOOP
         INSERT INTO logs_acesso (id, cliente_id, data_acesso, ip_address, acao, detalhes)
         VALUES (
             i,
-            TRUNC(DBMS_RANDOM.VALUE(1, 100001)),
+            TRUNC(DBMS_RANDOM.VALUE(1, 9500001)),
             SYSTIMESTAMP - NUMTODSINTERVAL(DBMS_RANDOM.VALUE(0, 525600), 'MINUTE'),
             TRUNC(DBMS_RANDOM.VALUE(1, 255)) || '.' || TRUNC(DBMS_RANDOM.VALUE(1, 255)) || '.' ||
             TRUNC(DBMS_RANDOM.VALUE(1, 255)) || '.' || TRUNC(DBMS_RANDOM.VALUE(1, 255)),
@@ -145,7 +145,7 @@ BEGIN
             'Detalhes da acao ' || i
         );
 
-        IF MOD(i, 75000) = 0 THEN
+        IF MOD(i, 500000) = 0 THEN
             COMMIT;
             DBMS_OUTPUT.PUT_LINE('  ' || i || ' logs inseridos...');
         END IF;
