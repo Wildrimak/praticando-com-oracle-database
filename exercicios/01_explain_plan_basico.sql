@@ -5,6 +5,8 @@
 -- =============================================================
 
 -- Ative o output
+-- NOTA: Comandos SET sao especificos do SQL*Plus/SQLcl.
+-- Se usar outro cliente (DBeaver, SQL Developer), pode ignorar estes comandos.
 SET SERVEROUTPUT ON;
 SET LINESIZE 200;
 SET PAGESIZE 100;

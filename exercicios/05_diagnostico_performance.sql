@@ -159,8 +159,10 @@ FROM user_tables
 WHERE last_analyzed IS NULL
    OR last_analyzed < SYSDATE - 30;
 
--- Indices nao usados (se monitoramento habilitado)
-SELECT * FROM v$object_usage WHERE used = 'NO';
+-- Indices nao usados (monitoramento automatico no Oracle 23c)
+SELECT name, total_access_count, last_used
+FROM dba_index_usage
+WHERE owner = USER AND total_access_count = 0;
 
 -- =============================================================
 -- CHECKLIST DE TUNING

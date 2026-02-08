@@ -67,3 +67,23 @@ GRANT ALL ON logs_acesso TO tuning_lab;
 GRANT CREATE ANY INDEX TO tuning_lab;
 GRANT DROP ANY INDEX TO tuning_lab;
 GRANT ANALYZE ANY TO tuning_lab;
+
+-- Para ALTER SESSION (STATISTICS_LEVEL, optimizer params, etc.)
+GRANT ALTER SESSION TO tuning_lab;
+
+-- Para DBMS_XPLAN.DISPLAY_CURSOR (ver plano real com estatisticas)
+GRANT SELECT ON V_$SESSION TO tuning_lab;
+GRANT SELECT ON V_$SQL TO tuning_lab;
+GRANT SELECT ON V_$SQL_PLAN TO tuning_lab;
+GRANT SELECT ON V_$SQL_PLAN_STATISTICS_ALL TO tuning_lab;
+
+-- Para SET AUTOTRACE ON no SQL*Plus
+GRANT SELECT ON V_$SESSTAT TO tuning_lab;
+GRANT SELECT ON V_$STATNAME TO tuning_lab;
+GRANT SELECT ON V_$MYSTAT TO tuning_lab;
+
+-- Para monitoramento de uso de indices (DBA_INDEX_USAGE substitui v$object_usage no 23c)
+GRANT SELECT ON DBA_INDEX_USAGE TO tuning_lab;
+
+-- Para coleta de estatisticas pelo usuario
+GRANT EXECUTE ON DBMS_STATS TO tuning_lab;

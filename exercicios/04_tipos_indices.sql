@@ -115,13 +115,13 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 -- DIAGNOSTICO: Indices nao usados
 -- =============================================================
 
--- Habilita monitoramento
-ALTER INDEX idx_clientes_cpf MONITORING USAGE;
+-- No Oracle 23c, o monitoramento de uso de indices e automatico.
+-- Nao precisa mais de ALTER INDEX ... MONITORING USAGE.
 
--- Apos um tempo, verifica se foi usado
-SELECT index_name, monitoring, used
-FROM v$object_usage
-WHERE index_name = 'IDX_CLIENTES_CPF';
+-- Verifica se o indice foi usado (apos executar queries que o utilizem)
+SELECT name, total_access_count, last_used
+FROM dba_index_usage
+WHERE name = 'IDX_CLIENTES_CPF';
 
 -- =============================================================
 -- COMPARATIVO DE TAMANHOS
