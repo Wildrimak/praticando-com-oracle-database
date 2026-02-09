@@ -1,0 +1,192 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-oracle-50: #fff7ed;
+  --color-oracle-100: #ffedd5;
+  --color-oracle-200: #fed7aa;
+  --color-oracle-300: #fdba74;
+  --color-oracle-400: #fb923c;
+  --color-oracle-500: #f97316;
+  --color-oracle-600: #ea580c;
+  --color-oracle-700: #c2410c;
+  --color-oracle-800: #9a3412;
+  --color-oracle-900: #7c2d12;
+
+  --color-dark-50: #f8fafc;
+  --color-dark-100: #f1f5f9;
+  --color-dark-200: #e2e8f0;
+  --color-dark-300: #cbd5e1;
+  --color-dark-400: #94a3b8;
+  --color-dark-500: #64748b;
+  --color-dark-600: #475569;
+  --color-dark-700: #334155;
+  --color-dark-800: #1e293b;
+  --color-dark-850: #162032;
+  --color-dark-900: #0f172a;
+  --color-dark-950: #020617;
+}
+
+:root {
+  --background: var(--color-dark-950);
+  --foreground: var(--color-dark-50);
+  --card: var(--color-dark-900);
+  --card-foreground: var(--color-dark-50);
+  --border: var(--color-dark-700);
+  --input: var(--color-dark-800);
+  --primary: var(--color-oracle-500);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-dark-800);
+  --secondary-foreground: var(--color-dark-200);
+  --muted: var(--color-dark-800);
+  --muted-foreground: var(--color-dark-400);
+  --accent: var(--color-dark-800);
+  --accent-foreground: var(--color-dark-200);
+  --destructive: #ef4444;
+  --ring: var(--color-oracle-500);
+  --radius: 0.5rem;
+}
+
+.light {
+  --background: #ffffff;
+  --foreground: var(--color-dark-900);
+  --card: #ffffff;
+  --card-foreground: var(--color-dark-900);
+  --border: var(--color-dark-200);
+  --input: var(--color-dark-100);
+  --primary: var(--color-oracle-500);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-dark-100);
+  --secondary-foreground: var(--color-dark-800);
+  --muted: var(--color-dark-100);
+  --muted-foreground: var(--color-dark-500);
+  --accent: var(--color-dark-100);
+  --accent-foreground: var(--color-dark-800);
+  --destructive: #ef4444;
+  --ring: var(--color-oracle-500);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* CodeMirror overrides for dark theme */
+.cm-editor {
+  height: 100%;
+  font-size: 14px;
+}
+
+.cm-editor .cm-gutters {
+  background: var(--color-dark-900);
+  border-right: 1px solid var(--color-dark-700);
+}
+
+/* Terminal output styling */
+.terminal-output {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Execution plan highlighting */
+.plan-operation-fts {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.plan-operation-index {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.plan-operation-hash {
+  color: #eab308;
+  font-weight: 600;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-dark-900);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-dark-600);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-dark-500);
+}
+
+/* Markdown content styling */
+.exercise-content h1,
+.exercise-content h2,
+.exercise-content h3 {
+  color: var(--color-oracle-400);
+}
+
+.exercise-content code {
+  background: var(--color-dark-800);
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.exercise-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.exercise-content pre {
+  background: var(--color-dark-900);
+  border: 1px solid var(--color-dark-700);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.exercise-content blockquote {
+  border-left: 3px solid var(--color-oracle-500);
+  padding-left: 1rem;
+  color: var(--color-dark-300);
+}
+
+/* Callout boxes */
+.callout-insight {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.callout-warning {
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* Split panel resize handle */
+.resize-handle {
+  width: 4px;
+  cursor: col-resize;
+  background: var(--color-dark-700);
+  transition: background 0.2s;
+}
+
+.resize-handle:hover {
+  background: var(--color-oracle-500);
+}

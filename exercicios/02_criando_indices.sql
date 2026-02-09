@@ -114,6 +114,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 EXPLAIN PLAN FOR
 SELECT COUNT(*) FROM clientes WHERE status = 'ATIVO';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+-- TODO: na verdade usou um INDEX SKIP SCAN no idx_clientes_estado_status, porque o status 'ATIVO' tem 25% da tabela. Mas se fosse um valor mais raro, o indice NAO seria usado.
 -- Observe: TABLE ACCESS FULL! O indice (estado, status) nao ajuda
 -- quando a PRIMEIRA coluna nao esta no filtro.
 
