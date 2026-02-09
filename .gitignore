@@ -15,6 +15,12 @@ venv/
 # Claude Code (local settings)
 .claude/
 
+# Node.js
+node_modules/
+.next/
+.env
+.env*.local
+
 # OS
 .DS_Store
 Thumbs.db
