@@ -11,7 +11,7 @@ docker compose up -d
 Aguarde o banco inicializar (~5-10 minutos na primeira vez). O container executa automaticamente:
 1. Concede permissões DBA ao usuário de estudo
 2. Cria as tabelas (no schema do tuning_lab)
-3. Popula com **~222 milhões de registros (~11GB)**
+3. Popula com **~159 milhões de registros (~8.5GB)**
 4. Coleta estatísticas do otimizador
 
 ## Conexão
@@ -37,7 +37,7 @@ O usuário `tuning_lab` tem permissões **DBA completas**: pode criar/dropar ín
 |--------|-----------|---------|-----------|
 | clientes | 9.500.000 | ~1 GB | Tabela principal para estudo |
 | pedidos | 46.000.000 | ~2 GB | Para exercícios de JOIN |
-| itens_pedido | 128.000.000 | ~5 GB | Relacionamento N:N |
+| itens_pedido | 65.000.000 | ~2.5 GB | Relacionamento N:N |
 | logs_acesso | 38.500.000 | ~3 GB | Tabela de alto volume |
 
 ## Exercícios
@@ -158,7 +158,7 @@ oracle-tuning-lab/
 │   │   └── 02_setup_lab.sh       # Cria tabelas + dados + stats
 │   └── sql/                      # Scripts SQL (chamados pelo bash)
 │       ├── create_tables.sql     # DDL das tabelas
-│       ├── populate_data.sql     # Carga de ~222M registros
+│       ├── populate_data.sql     # Carga de ~159M registros
 │       └── collect_stats.sql     # Coleta de estatísticas
 ├── exercicios/
 │   ├── 01_explain_plan_basico.sql

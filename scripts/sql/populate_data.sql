@@ -101,9 +101,9 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Pedidos: OK');
 
     -- =========================================================
-    -- ITENS PEDIDO: 128.000.000 registros (~5GB)
+    -- ITENS PEDIDO: 65.000.000 registros (~2.5GB)
     -- =========================================================
-    v_total := 128000000;
+    v_total := 65000000;
     v_offset := 0;
     DBMS_OUTPUT.PUT_LINE('Inserindo ' || v_total || ' itens de pedido...');
 
