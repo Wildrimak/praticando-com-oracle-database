@@ -1,13 +1,11 @@
 -- =============================================================
 -- ORACLE TUNING LAB - Coleta de Estatisticas
 -- =============================================================
--- Coleta estatisticas para o otimizador funcionar corretamente
+-- Roda como TUNING_LAB (dono das tabelas).
+-- USER resolve para TUNING_LAB automaticamente.
 -- =============================================================
 
--- Conecta ao PDB
-ALTER SESSION SET CONTAINER = FREEPDB1;
-
-SET SERVEROUTPUT ON;
+SET SERVEROUTPUT ON
 
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Coletando estatisticas das tabelas...');

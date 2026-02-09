@@ -10,7 +10,8 @@ services:
       - "1521:1521"
     volumes:
       - oracle_data:/opt/oracle/oradata
-      - ./scripts:/container-entrypoint-initdb.d
+      - ./scripts/init:/container-entrypoint-initdb.d
+      - ./scripts/sql:/opt/oracle/scripts
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 10s
