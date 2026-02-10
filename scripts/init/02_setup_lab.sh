@@ -2,7 +2,8 @@
 # =============================================================
 # ORACLE TUNING LAB - Setup Completo
 # =============================================================
-# Cria tabelas, popula dados e coleta estatisticas.
+# Cria tabelas, popula seed inicial (~2M rows), coleta stats
+# e configura crescimento gradual em background.
 # Tudo roda como TUNING_LAB para que ele seja DONO das tabelas.
 # =============================================================
 
@@ -16,7 +17,7 @@ echo "Inicio: $(date '+%Y-%m-%d %H:%M:%S')"
 sleep 5
 
 echo ""
-echo ">>> [1/3] Criando tabelas (como tuning_lab)..."
+echo ">>> [1/4] Criando tabelas (como tuning_lab)..."
 sqlplus -s ${CONN} @${SQL_DIR}/create_tables.sql
 
 if [ $? -ne 0 ]; then
@@ -26,17 +27,17 @@ fi
 echo ">>> Tabelas criadas com sucesso!"
 
 echo ""
-echo ">>> [2/3] Populando dados (isso vai levar alguns minutos)..."
+echo ">>> [2/4] Populando seed inicial (~2M registros)..."
 sqlplus -s ${CONN} @${SQL_DIR}/populate_data.sql
 
 if [ $? -ne 0 ]; then
     echo ">>> ERRO na populacao de dados!"
     exit 1
 fi
-echo ">>> Dados populados com sucesso!"
+echo ">>> Seed populado com sucesso!"
 
 echo ""
-echo ">>> [3/3] Coletando estatisticas do otimizador..."
+echo ">>> [3/4] Coletando estatisticas do otimizador..."
 sqlplus -s ${CONN} @${SQL_DIR}/collect_stats.sql
 
 if [ $? -ne 0 ]; then
@@ -46,7 +47,18 @@ fi
 echo ">>> Estatisticas coletadas com sucesso!"
 
 echo ""
-echo "=== Setup Completo ==="
+echo ">>> [4/4] Configurando crescimento gradual (background)..."
+sqlplus -s ${CONN} @${SQL_DIR}/setup_growth_job.sql
+
+if [ $? -ne 0 ]; then
+    echo ">>> ERRO na configuracao do growth job!"
+    exit 1
+fi
+echo ">>> Growth job configurado com sucesso!"
+
+echo ""
+echo "=== SEED CONCLUIDO ==="
 echo "Fim: $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
+echo "Lab pronto para uso! Dados crescerao em background (~2h ate volume final)."
 echo "Conexao: sqlplus tuning_lab/tuning123@//localhost:1521/FREEPDB1"

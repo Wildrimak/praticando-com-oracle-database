@@ -9,6 +9,16 @@ SET TIMING ON;
 SET LINESIZE 200;
 
 -- =============================================================
+-- VOLUME DE DADOS (verifique antes de comecar)
+-- =============================================================
+-- Os dados crescem em background via DBMS_SCHEDULER.
+
+SELECT table_name, num_rows, TO_CHAR(last_analyzed, 'DD/MM HH24:MI') AS stats_date
+FROM user_tables
+WHERE table_name IN ('CLIENTES', 'PEDIDOS', 'ITENS_PEDIDO', 'LOGS_ACESSO')
+ORDER BY table_name;
+
+-- =============================================================
 -- TIPO 1: B-Tree Index (Padrao)
 -- =============================================================
 -- Melhor para: colunas com ALTA seletividade (muitos valores distintos)
@@ -74,7 +84,7 @@ CREATE INDEX idx_pedidos_ano ON pedidos(EXTRACT(YEAR FROM data_pedido));
 EXPLAIN PLAN FOR
 SELECT COUNT(*) FROM pedidos WHERE EXTRACT(YEAR FROM data_pedido) = 2024;
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- Usa o indice function-based em vez de varrer 46M registros
+-- Usa o indice function-based em vez de varrer toda a tabela de pedidos
 
 -- =============================================================
 -- TIPO 4: Indice Unico (UNIQUE)

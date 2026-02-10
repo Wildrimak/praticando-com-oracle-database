@@ -12,6 +12,21 @@ SET LINESIZE 200;
 SET PAGESIZE 100;
 
 -- =============================================================
+-- VOLUME DE DADOS (verifique antes de comecar)
+-- =============================================================
+-- Os dados crescem em background via DBMS_SCHEDULER.
+-- Execute esta query para ver o volume atual:
+
+SELECT table_name, num_rows, TO_CHAR(last_analyzed, 'DD/MM HH24:MI') AS stats_date
+FROM user_tables
+WHERE table_name IN ('CLIENTES', 'PEDIDOS', 'ITENS_PEDIDO', 'LOGS_ACESSO')
+ORDER BY table_name;
+
+-- NOTA: Os valores absolutos (rows, cost) nos comentarios sao aproximados.
+-- O importante e o RACIOCINIO: comparar custos relativos e entender
+-- por que o otimizador escolhe cada estrategia.
+
+-- =============================================================
 -- PARTE 1: EXPLAIN PLAN basico
 -- =============================================================
 
@@ -25,7 +40,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 -- O que observar:
 -- 1. TABLE ACCESS FULL = leu a tabela INTEIRA (sem indice util)
 -- 2. Cost = custo estimado pelo otimizador (quanto MENOR, melhor)
--- 3. Rows = estimativa de linhas retornadas (~792K para SP)
+-- 3. Rows = estimativa de linhas retornadas (~8.3% da tabela, 1/12 dos estados)
 -- 4. Bytes = estimativa de dados processados
 
 -- =============================================================
@@ -37,18 +52,18 @@ EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE id = 12345;
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 -- Observe: INDEX UNIQUE SCAN + TABLE ACCESS BY INDEX ROWID
--- Cost: ~3 (milhares de vezes menor que o FTS!)
+-- Cost: muito baixo (apenas 2-3), milhares de vezes menor que o FTS!
 
 -- Query 2: Busca por campo sem indice
 EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE email = 'teste@gmail.com';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 -- Observe: TABLE ACCESS FULL (varredura completa)
--- Cost: ~37000 (precisa ler a tabela inteira para achar 1 email)
+-- Cost: alto (precisa ler a tabela inteira para achar 1 email)
 
--- COMPARE: PK (cost ~3) vs Email sem indice (cost ~37000)
+-- COMPARE: PK (cost baixissimo) vs Email sem indice (cost alto)
 -- Por que tanta diferenca? A PK tem indice criado automaticamente.
--- O email nao tem indice, entao o Oracle precisa ler TODOS os 9.5M registros.
+-- O email nao tem indice, entao o Oracle precisa ler TODOS os registros.
 
 -- =============================================================
 -- PARTE 3: Estatisticas de execucao REAL
@@ -85,7 +100,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(NULL, NULL, 'ALLSTATS LAST'));
 EXPLAIN PLAN FOR
 SELECT COUNT(*) FROM clientes WHERE estado = 'SP';
 SELECT plan_table_output FROM TABLE(DBMS_XPLAN.DISPLAY);
--- Observe: cost ~37000, rows ~792K
+-- Observe: cost alto, rows ~8.3% da tabela (1/12 dos estados)
 
 -- Query B: Index Unique Scan (PK)
 EXPLAIN PLAN FOR

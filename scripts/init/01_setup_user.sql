@@ -8,6 +8,35 @@
 ALTER SESSION SET CONTAINER = FREEPDB1;
 
 -- =============================================================
+-- PROTECAO DE TABLESPACE (limites de datafile)
+-- =============================================================
+-- Oracle Free tem limite de 12GB. Definimos MAXSIZE para evitar
+-- que a carga de dados estoure o limite e torne o PDB inacessivel.
+
+DECLARE
+    v_file VARCHAR2(500);
+BEGIN
+    -- UNDO: max 2GB
+    SELECT file_name INTO v_file FROM dba_data_files
+    WHERE tablespace_name = 'UNDOTBS1' AND ROWNUM = 1;
+    EXECUTE IMMEDIATE 'ALTER DATABASE DATAFILE ''' || v_file || ''' AUTOEXTEND ON MAXSIZE 2G';
+
+    -- USERS: max 8GB (dados + indices)
+    SELECT file_name INTO v_file FROM dba_data_files
+    WHERE tablespace_name = 'USERS' AND ROWNUM = 1;
+    EXECUTE IMMEDIATE 'ALTER DATABASE DATAFILE ''' || v_file || ''' AUTOEXTEND ON MAXSIZE 8G';
+
+    -- TEMP: max 1GB
+    SELECT file_name INTO v_file FROM dba_temp_files
+    WHERE tablespace_name = 'TEMP' AND ROWNUM = 1;
+    EXECUTE IMMEDIATE 'ALTER DATABASE TEMPFILE ''' || v_file || ''' AUTOEXTEND ON MAXSIZE 1G';
+END;
+/
+
+-- Reduz UNDO_RETENTION para liberar espaco mais rapido
+ALTER SYSTEM SET UNDO_RETENTION = 300 SCOPE = BOTH;
+
+-- =============================================================
 -- PERMISSOES DBA SUPREMAS
 -- =============================================================
 
@@ -20,6 +49,9 @@ GRANT SELECT_CATALOG_ROLE TO tuning_lab;
 
 -- Tablespace ilimitado
 GRANT UNLIMITED TABLESPACE TO tuning_lab;
+
+-- DBMS_SCHEDULER (para crescimento gradual de dados)
+GRANT CREATE JOB TO tuning_lab;
 
 -- Tuning Advisor (para diagnosticos avancados)
 GRANT ADVISOR TO tuning_lab;

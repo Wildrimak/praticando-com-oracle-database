@@ -8,11 +8,14 @@ Laboratório prático para estudo de **índices** e **planos de execução** no 
 docker compose up -d
 ```
 
-Aguarde o banco inicializar (~5-10 minutos na primeira vez). O container executa automaticamente:
+Aguarde o container ficar healthy (~1-2 minutos). O lab fica **pronto para uso imediatamente** com ~2M registros. Os dados crescem automaticamente em background até ~57M registros (~2 horas).
+
+O container executa automaticamente:
 1. Concede permissões DBA ao usuário de estudo
 2. Cria as tabelas (no schema do tuning_lab)
-3. Popula com **~159 milhões de registros (~8.5GB)**
+3. Popula o seed inicial (~2.1M registros)
 4. Coleta estatísticas do otimizador
+5. Configura crescimento gradual via DBMS_SCHEDULER
 
 ## Conexão
 
@@ -33,12 +36,46 @@ O usuário `tuning_lab` tem permissões **DBA completas**: pode criar/dropar ín
 
 ## Estrutura do Banco
 
-| Tabela | Registros | Tamanho | Descrição |
-|--------|-----------|---------|-----------|
-| clientes | 9.500.000 | ~1 GB | Tabela principal para estudo |
-| pedidos | 46.000.000 | ~2 GB | Para exercícios de JOIN |
-| itens_pedido | 65.000.000 | ~2.5 GB | Relacionamento N:N |
-| logs_acesso | 38.500.000 | ~3 GB | Tabela de alto volume |
+| Tabela | Seed Inicial | Alvo Final | Descrição |
+|--------|-------------|------------|-----------|
+| clientes | 100.000 | 4.000.000 | Tabela principal para estudo |
+| pedidos | 500.000 | 16.000.000 | Para exercícios de JOIN |
+| itens_pedido | 1.000.000 | 25.000.000 | Relacionamento N:N |
+| logs_acesso | 500.000 | 12.000.000 | Tabela de alto volume |
+| **Total** | **2.100.000** | **57.000.000** | **~5.2 GB** |
+
+Os exercícios usam **percentuais e raciocínio relativo**, então funcionam com qualquer volume de dados.
+
+## Crescimento em Background
+
+Os dados crescem automaticamente via `DBMS_SCHEDULER`:
+- Job `GROW_DATA_JOB` roda a cada **3 minutos**
+- Adiciona ~1.8M registros por execução
+- Se auto-desabilita ao atingir os volumes alvo
+- Recoleta estatísticas automaticamente a cada 10 execuções
+- Tempo estimado até o alvo: **~2 horas**
+
+### Monitoramento
+
+```sql
+-- Status do job
+SELECT job_name, state, run_count, last_start_date
+FROM user_scheduler_jobs
+WHERE job_name = 'GROW_DATA_JOB';
+
+-- Volume atual das tabelas
+SELECT table_name, num_rows
+FROM user_tables
+WHERE table_name IN ('CLIENTES', 'PEDIDOS', 'ITENS_PEDIDO', 'LOGS_ACESSO')
+ORDER BY table_name;
+
+-- Espaço usado
+SELECT tablespace_name,
+       ROUND(SUM(bytes)/1024/1024/1024, 2) AS used_gb
+FROM dba_segments
+WHERE owner = 'TUNING_LAB'
+GROUP BY tablespace_name;
+```
 
 ## Exercícios
 
@@ -154,12 +191,13 @@ oracle-tuning-lab/
 ├── docker-compose.yaml           # Configuração do container
 ├── scripts/
 │   ├── init/                     # Auto-executados na inicialização
-│   │   ├── 01_setup_user.sql     # Permissões DBA para tuning_lab
-│   │   └── 02_setup_lab.sh       # Cria tabelas + dados + stats
+│   │   ├── 01_setup_user.sql     # Permissões DBA + limites de tablespace
+│   │   └── 02_setup_lab.sh       # Cria tabelas + seed + stats + growth job
 │   └── sql/                      # Scripts SQL (chamados pelo bash)
 │       ├── create_tables.sql     # DDL das tabelas
-│       ├── populate_data.sql     # Carga de ~159M registros
-│       └── collect_stats.sql     # Coleta de estatísticas
+│       ├── populate_data.sql     # Seed inicial (~2.1M registros)
+│       ├── collect_stats.sql     # Coleta de estatísticas
+│       └── setup_growth_job.sql  # Crescimento gradual via DBMS_SCHEDULER
 ├── exercicios/
 │   ├── 01_explain_plan_basico.sql
 │   ├── 02_criando_indices.sql
@@ -191,10 +229,19 @@ docker compose up -d
 ```
 
 ### Plano de execução mostra Rows = 1 ou 0
-Estatísticas desatualizadas. Recolete:
+Estatísticas desatualizadas (ou dados ainda crescendo). Recolete:
 ```sql
 EXEC DBMS_STATS.GATHER_TABLE_STATS(USER, 'CLIENTES');
 EXEC DBMS_STATS.GATHER_TABLE_STATS(USER, 'PEDIDOS');
+```
+
+### Job de crescimento parou
+```sql
+-- Verificar status
+SELECT job_name, state, run_count FROM user_scheduler_jobs WHERE job_name = 'GROW_DATA_JOB';
+
+-- Se state = 'DISABLED', o job ja atingiu o alvo. Caso contrario:
+EXEC DBMS_SCHEDULER.ENABLE('GROW_DATA_JOB');
 ```
 
 ### Pouca memória

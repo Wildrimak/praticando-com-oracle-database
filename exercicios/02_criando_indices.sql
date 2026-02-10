@@ -10,16 +10,28 @@ SET SERVEROUTPUT ON;
 SET LINESIZE 200;
 
 -- =============================================================
+-- VOLUME DE DADOS (verifique antes de comecar)
+-- =============================================================
+-- Os dados crescem em background via DBMS_SCHEDULER.
+-- Os exercicios usam PERCENTUAIS e raciocinio relativo,
+-- entao funcionam com qualquer volume.
+
+SELECT table_name, num_rows, TO_CHAR(last_analyzed, 'DD/MM HH24:MI') AS stats_date
+FROM user_tables
+WHERE table_name IN ('CLIENTES', 'PEDIDOS', 'ITENS_PEDIDO', 'LOGS_ACESSO')
+ORDER BY table_name;
+
+-- =============================================================
 -- CENARIO 1: Indice em coluna com BAIXA seletividade
 -- =============================================================
--- estado tem apenas 12 valores distintos em 9.5M registros.
--- Cada estado tem ~792K registros (8.3% da tabela).
+-- estado tem apenas 12 valores distintos.
+-- Cada estado tem ~8.3% da tabela (1/12 dos registros).
 
 -- ANTES: Veja o plano sem indice
 EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE estado = 'SP';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- Resultado esperado: TABLE ACCESS FULL (cost ~37000)
+-- Resultado esperado: TABLE ACCESS FULL (cost alto)
 
 -- Execute e veja o tempo
 SELECT COUNT(*) FROM clientes WHERE estado = 'SP';
@@ -38,7 +50,7 @@ SELECT COUNT(*) FROM clientes WHERE estado = 'SP';
 -- Anote o tempo: _______ segundos
 
 -- SURPRESA! O Oracle provavelmente IGNORA o indice e continua com TABLE ACCESS FULL!
--- Por que? Para SELECT *, retornar 792K registros (8.3% da tabela) via indice
+-- Por que? Para SELECT *, retornar ~8.3% da tabela via indice
 -- seria MAIS CARO do que ler a tabela sequencialmente, porque:
 -- 1. Index Range Scan: le o indice + acessa a tabela por ROWID (acesso aleatorio)
 -- 2. Full Table Scan: le a tabela sequencialmente (acesso sequencial, mais rapido)
@@ -51,20 +63,20 @@ SELECT COUNT(*) FROM clientes WHERE estado = 'SP';
 EXPLAIN PLAN FOR
 SELECT COUNT(*) FROM clientes WHERE estado = 'SP';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- Agora SIM usa o indice! (INDEX RANGE SCAN, cost ~600)
+-- Agora SIM usa o indice! (INDEX RANGE SCAN, cost muito menor)
 -- Porque COUNT(*) so precisa do indice, nao precisa acessar a tabela.
 
 -- =============================================================
 -- CENARIO 2: Indice com ALTA seletividade
 -- =============================================================
--- Email e quase unico: 9.5M valores distintos em 9.5M registros.
--- Retorna 1 registro = 0.00001% da tabela. Indice PERFEITO.
+-- Email e quase unico: cada valor retorna 1 registro = ~0.00001% da tabela.
+-- Indice PERFEITO.
 
 -- ANTES
 EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE email = 'user1@email.com';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- Resultado: TABLE ACCESS FULL (cost ~37000!)
+-- Resultado: TABLE ACCESS FULL (cost alto!)
 
 -- Cria indice no email
 CREATE INDEX idx_clientes_email ON clientes(email);
@@ -74,7 +86,7 @@ EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE email = 'user1@email.com';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 -- Resultado esperado: INDEX RANGE SCAN (cost ~4)
--- De 37000 para 4. Uma melhoria de ~9000x!
+-- Melhoria de milhares de vezes no custo!
 
 -- =============================================================
 -- CENARIO 3: Indice Composto
@@ -86,7 +98,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE estado = 'SP' AND status = 'ATIVO';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- estado='SP' = 8.3%, status='ATIVO' = 25%, combinados = ~2%
+-- estado='SP' = ~8.3%, status='ATIVO' = ~25%, combinados = ~2%
 
 -- Indice composto
 CREATE INDEX idx_clientes_estado_status ON clientes(estado, status);
@@ -96,12 +108,12 @@ EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE estado = 'SP' AND status = 'ATIVO';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 
--- NOTA: Para SELECT *, o Oracle PODE ainda preferir FTS se 2% = 198K registros
+-- NOTA: Para SELECT *, o Oracle PODE ainda preferir FTS se ~2% da tabela
 -- ainda for muitos rows. Mas para COUNT(*), com certeza usa o indice:
 EXPLAIN PLAN FOR
 SELECT COUNT(*) FROM clientes WHERE estado = 'SP' AND status = 'ATIVO';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- INDEX RANGE SCAN! (cost ~600 em vez de ~37000)
+-- INDEX RANGE SCAN! (cost muito menor que FTS)
 
 -- IMPORTANTE: A ORDEM das colunas no indice IMPORTA!
 -- idx(estado, status) funciona para:
@@ -114,8 +126,8 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 EXPLAIN PLAN FOR
 SELECT COUNT(*) FROM clientes WHERE status = 'ATIVO';
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- TODO: na verdade usou um INDEX SKIP SCAN no idx_clientes_estado_status, porque o status 'ATIVO' tem 25% da tabela. Mas se fosse um valor mais raro, o indice NAO seria usado.
--- Observe: TABLE ACCESS FULL! O indice (estado, status) nao ajuda
+-- Observe: Provavelmente TABLE ACCESS FULL ou INDEX SKIP SCAN.
+-- O indice (estado, status) nao ajuda diretamente
 -- quando a PRIMEIRA coluna nao esta no filtro.
 
 -- =============================================================
@@ -126,7 +138,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 EXPLAIN PLAN FOR
 SELECT * FROM clientes WHERE estado = 'RJ' ORDER BY data_cadastro;
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- Observe: SORT ORDER BY (caro! precisa ordenar ~792K registros)
+-- Observe: SORT ORDER BY (caro! precisa ordenar ~8.3% dos registros)
 
 -- Indice que cobre filtro + ordenacao
 CREATE INDEX idx_clientes_estado_data ON clientes(estado, data_cadastro);

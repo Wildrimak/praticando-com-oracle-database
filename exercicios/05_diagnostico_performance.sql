@@ -11,6 +11,21 @@ SET SERVEROUTPUT ON;
 ALTER SESSION SET STATISTICS_LEVEL = ALL;
 
 -- =============================================================
+-- VOLUME DE DADOS (verifique antes de comecar)
+-- =============================================================
+-- Os dados crescem em background via DBMS_SCHEDULER.
+
+SELECT table_name, num_rows, TO_CHAR(last_analyzed, 'DD/MM HH24:MI') AS stats_date
+FROM user_tables
+WHERE table_name IN ('CLIENTES', 'PEDIDOS', 'ITENS_PEDIDO', 'LOGS_ACESSO')
+ORDER BY table_name;
+
+-- Para verificar o status do job de crescimento:
+SELECT job_name, state, run_count, last_start_date
+FROM user_scheduler_jobs
+WHERE job_name = 'GROW_DATA_JOB';
+
+-- =============================================================
 -- FERRAMENTA 1: AUTOTRACE
 -- =============================================================
 -- Mostra plano + estatisticas de execucao em um unico comando.
@@ -92,7 +107,7 @@ WHERE table_name IN ('CLIENTES', 'PEDIDOS', 'ITENS_PEDIDO', 'LOGS_ACESSO');
 EXPLAIN PLAN FOR
 SELECT * FROM logs_acesso WHERE cliente_id = 12345;
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- TABLE ACCESS FULL em milhoes de registros para buscar ~4 rows!
+-- TABLE ACCESS FULL para buscar poucos registros!
 
 -- Causa: Falta de indice
 CREATE INDEX idx_logs_cliente ON logs_acesso(cliente_id);

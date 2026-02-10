@@ -40,7 +40,7 @@ if ($status -ne "healthy") {
 
 # 4. Verifica se scripts foram executados
 Write-Host "`n4. Verificando execucao dos scripts de inicializacao..." -ForegroundColor Yellow
-docker logs oracle-tuning-lab 2>&1 | Select-String -Pattern "CARGA CONCLUIDA|01_setup_user|Setup Completo"
+docker logs oracle-tuning-lab 2>&1 | Select-String -Pattern "SEED CONCLUIDO|01_setup_user|Setup Completo"
 
 Write-Host "`n=== LAB PRONTO ===" -ForegroundColor Green
 Write-Host "Conecte-se usando:" -ForegroundColor Cyan

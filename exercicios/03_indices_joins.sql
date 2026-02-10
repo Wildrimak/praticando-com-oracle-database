@@ -9,6 +9,16 @@ SET TIMING ON;
 SET LINESIZE 200;
 
 -- =============================================================
+-- VOLUME DE DADOS (verifique antes de comecar)
+-- =============================================================
+-- Os dados crescem em background via DBMS_SCHEDULER.
+
+SELECT table_name, num_rows, TO_CHAR(last_analyzed, 'DD/MM HH24:MI') AS stats_date
+FROM user_tables
+WHERE table_name IN ('CLIENTES', 'PEDIDOS', 'ITENS_PEDIDO', 'LOGS_ACESSO')
+ORDER BY table_name;
+
+-- =============================================================
 -- CENARIO 1: JOIN sem indice na FK
 -- =============================================================
 
@@ -24,7 +34,7 @@ SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 -- O que observar:
 -- - clientes: INDEX UNIQUE SCAN (PK do id) --> rapido
 -- - pedidos: TABLE ACCESS FULL (sem indice em cliente_id) --> LENTO!
---   Oracle precisa ler TODOS os 46M de pedidos para achar os do cliente 12345
+--   Oracle precisa ler TODOS os pedidos para achar os do cliente 12345
 
 -- Cria indice na FK
 CREATE INDEX idx_pedidos_cliente ON pedidos(cliente_id);
@@ -38,7 +48,7 @@ WHERE c.id = 12345;
 
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 -- Agora: INDEX RANGE SCAN no idx_pedidos_cliente
--- De ~100000 cost para ~10 cost. ENORME diferenca.
+-- Reducao dramatica no custo. ENORME diferenca.
 -- REGRA: Sempre crie indices nas colunas de FK!
 
 -- =============================================================
@@ -68,8 +78,8 @@ WHERE p.data_pedido >= DATE '2024-01-01'
 
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 
--- NOTA: Com 46M pedidos em 730 dias, ~63K pedidos/dia.
--- 1 ano = ~23M pedidos (50% da tabela). O otimizador pode decidir
+-- NOTA: Os pedidos cobrem ~730 dias (2 anos).
+-- 1 ano = ~50% da tabela. O otimizador pode decidir
 -- que FTS e melhor para um range tao grande.
 -- Para ranges menores (ex: 1 mes), o indice faz mais diferenca.
 
@@ -124,8 +134,8 @@ JOIN pedidos p ON p.cliente_id = c.id
 WHERE c.estado = 'SP';
 
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
--- NESTED LOOPS: para CADA cliente de SP, busca seus pedidos no indice.
--- Com 792K clientes x ~5 pedidos cada = muitas iteracoes. Lento!
+-- NESTED LOOPS: para CADA cliente de SP (~8.3%), busca seus pedidos no indice.
+-- Com muitos clientes x ~4-5 pedidos cada = muitas iteracoes. Lento!
 
 -- Forca HASH JOIN
 EXPLAIN PLAN FOR
