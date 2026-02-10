@@ -1,3 +1,8 @@
+/**
+ * @description Root layout for the Next.js application.
+ * Imports global CSS and sets HTML metadata. Passes children through to
+ * the locale-specific layout which provides the `<html>` and `<body>` tags.
+ */
 import type { Metadata } from "next";
 import "./globals.css";
 

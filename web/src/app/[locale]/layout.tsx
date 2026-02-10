@@ -1,3 +1,7 @@
+/**
+ * @description Locale-specific layout that wraps pages with NextIntlClientProvider.
+ * Validates the locale param, loads the corresponding JSON messages, and renders `<html>` / `<body>`.
+ */
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";

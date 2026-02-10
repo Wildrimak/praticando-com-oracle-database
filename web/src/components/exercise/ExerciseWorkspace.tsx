@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { StepContent } from "./StepContent";
 import { StepNavigator } from "./StepNavigator";
 import { SqlEditor } from "../editor/SqlEditor";
@@ -10,9 +10,21 @@ import { useExerciseProgress } from "@/hooks/useExerciseProgress";
 import type { Exercise, Locale } from "@/types";
 import { useLocale } from "next-intl";
 
+/**
+ * @description Main exercise workspace container with split-panel layout.
+ * Left side shows step content (markdown), right side shows SQL editor (top) and
+ * terminal output (bottom) with a draggable resize handle between them.
+ * @param {ExerciseWorkspaceProps} props
+ * @param {Exercise} props.exercise - The exercise data including all steps
+ */
+
 interface ExerciseWorkspaceProps {
   exercise: Exercise;
 }
+
+const MIN_EDITOR_PERCENT = 20;
+const MAX_EDITOR_PERCENT = 80;
+const DEFAULT_EDITOR_PERCENT = 40;
 
 export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
   const locale = useLocale() as Locale;
@@ -23,6 +35,11 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
 
   const step = exercise.steps[currentStepIndex];
   const [sqlValue, setSqlValue] = useState(step.sql || "");
+
+  // Resizable panel state
+  const [editorPercent, setEditorPercent] = useState(DEFAULT_EDITOR_PERCENT);
+  const rightPanelRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const handleStepChange = useCallback(
     (newIndex: number) => {
@@ -41,6 +58,34 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
     }
   }, [execute, sqlValue]);
 
+  /** @description Starts the resize drag operation for the editor/terminal split */
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isDraggingRef.current || !rightPanelRef.current) return;
+      const rect = rightPanelRef.current.getBoundingClientRect();
+      const relativeY = moveEvent.clientY - rect.top;
+      const percent = (relativeY / rect.height) * 100;
+      const clamped = Math.min(MAX_EDITOR_PERCENT, Math.max(MIN_EDITOR_PERCENT, percent));
+      setEditorPercent(clamped);
+    };
+
+    const onMouseUp = () => {
+      isDraggingRef.current = false;
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+  }, []);
+
   const isStepComplete = currentProgress?.completedSteps.includes(step.id) ?? false;
 
   return (
@@ -58,9 +103,9 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
           </div>
         </div>
 
-        {/* Right panel: editor + terminal */}
-        <div className="flex w-[45%] flex-col">
-          <div className="h-[50%] border-b border-dark-700">
+        {/* Right panel: editor + terminal with resizable split */}
+        <div ref={rightPanelRef} className="flex w-[45%] flex-col">
+          <div style={{ height: `${editorPercent}%` }} className="min-h-0">
             <SqlEditor
               value={sqlValue}
               onChange={setSqlValue}
@@ -69,7 +114,11 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
               readOnly={step.editable === false}
             />
           </div>
-          <div className="h-[50%]">
+          <div
+            className="resize-handle-horizontal"
+            onMouseDown={handleResizeStart}
+          />
+          <div style={{ height: `${100 - editorPercent}%` }} className="min-h-0">
             <SqlTerminal
               result={result}
               isExecuting={isExecuting}

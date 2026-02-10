@@ -4,6 +4,17 @@ import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, CheckCircle2, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * @description Bottom navigation bar for stepping through exercise steps.
+ * Shows previous/next buttons, a step completion toggle, dot indicators, and step counter.
+ * @param {StepNavigatorProps} props
+ * @param {number} props.currentStep - Zero-based index of the current step
+ * @param {number} props.totalSteps - Total number of steps in the exercise
+ * @param {boolean} props.isStepComplete - Whether the current step is marked complete
+ * @param {() => void} props.onPrevious - Navigate to previous step
+ * @param {() => void} props.onNext - Navigate to next step
+ * @param {() => void} props.onToggleComplete - Toggle completion status of current step
+ */
 interface StepNavigatorProps {
   currentStep: number;
   totalSteps: number;

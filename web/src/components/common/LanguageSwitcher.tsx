@@ -4,6 +4,10 @@ import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { Languages } from "lucide-react";
 
+/**
+ * @description Toggle button that switches the app between pt-BR and en locales.
+ * Replaces the locale segment in the URL path and navigates to the new route.
+ */
 export function LanguageSwitcher() {
   const locale = useLocale();
   const pathname = usePathname();

@@ -8,6 +8,16 @@ import { keymap } from "@codemirror/view";
 import { useTranslations } from "next-intl";
 import { Play, Loader2 } from "lucide-react";
 
+/**
+ * @description SQL code editor powered by CodeMirror with Oracle SQL syntax highlighting.
+ * Supports Ctrl+Enter / Cmd+Enter to execute, optional read-only mode, and a run button.
+ * @param {SqlEditorProps} props
+ * @param {string} props.value - Current SQL content in the editor
+ * @param {(value: string) => void} props.onChange - Called when editor content changes
+ * @param {() => void} props.onExecute - Called when user triggers execution (button or keyboard shortcut)
+ * @param {boolean} props.isExecuting - Whether a query is currently running (disables run button)
+ * @param {boolean} [props.readOnly=false] - When true, editor is non-editable (demonstration steps)
+ */
 interface SqlEditorProps {
   value: string;
   onChange: (value: string) => void;

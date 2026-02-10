@@ -1,3 +1,4 @@
+/** @description Exercise 5: Performance diagnostics — AUTOTRACE, DISPLAY_CURSOR, finding slow SQLs, and common tuning problems. */
 import type { Exercise } from "@/types";
 
 export const exercise: Exercise = {

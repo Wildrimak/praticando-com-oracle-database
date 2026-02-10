@@ -6,6 +6,10 @@ import { Database } from "lucide-react";
 import { ConnectionStatus } from "../common/ConnectionStatus";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
 
+/**
+ * @description Sticky top header with Oracle Tuning Lab branding, navigation link to
+ * exercises, Oracle connection status indicator, and language switcher.
+ */
 export function Header() {
   const t = useTranslations("common");
 

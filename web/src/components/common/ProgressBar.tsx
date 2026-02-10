@@ -2,6 +2,14 @@
 
 import { cn } from "@/lib/utils";
 
+/**
+ * @description Animated progress bar with oracle-orange fill.
+ * Clamps value between 0-100. Optionally shows a percentage label.
+ * @param {ProgressBarProps} props
+ * @param {number} props.value - Progress percentage (0-100)
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {boolean} [props.showLabel=false] - Whether to show the percentage text
+ */
 interface ProgressBarProps {
   value: number;
   className?: string;

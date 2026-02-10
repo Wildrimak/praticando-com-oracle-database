@@ -1,8 +1,14 @@
+/**
+ * @description API route handler for SQL execution (POST /api/execute).
+ * Pipeline: rate limiting (1 req/sec per IP) -> SQL sanitization (blocklist/allowlist) -> Docker exec.
+ * Returns { output, success, executionTime } as JSON.
+ * @module api/execute
+ */
 import { NextRequest, NextResponse } from "next/server";
 import { executeSql } from "@/lib/docker";
 import { sanitizeSql } from "@/lib/sql-sanitizer";
 
-// Simple in-memory rate limiter
+/** In-memory rate limiter: tracks last request time per IP */
 const requestTimes = new Map<string, number>();
 
 function isRateLimited(ip: string): boolean {

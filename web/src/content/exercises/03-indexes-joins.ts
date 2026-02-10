@@ -1,3 +1,4 @@
+/** @description Exercise 3: Indexes in JOINs — FK indexes, JOIN algorithms (Nested Loops, Hash, Merge), and subquery vs JOIN comparison. */
 import type { Exercise } from "@/types";
 
 export const exercise: Exercise = {

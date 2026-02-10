@@ -1,3 +1,4 @@
+/** @description Exercise 4: Oracle index types — B-Tree, Bitmap, Function-Based, Unique, Reverse Key, Conditional, and Invisible. */
 import type { Exercise } from "@/types";
 
 export const exercise: Exercise = {

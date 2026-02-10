@@ -1,3 +1,9 @@
+/**
+ * @description Server-side module for executing SQL against Oracle via Docker.
+ * Runs `docker exec sqlplus` with the user's SQL, applies formatting settings,
+ * enforces a 30s timeout and 100KB output limit, and detects Oracle errors.
+ * @module docker
+ */
 import { execFile } from "child_process";
 
 const CONTAINER_NAME = "oracle-tuning-lab";
@@ -13,6 +19,12 @@ export interface DockerExecResult {
   executionTime: number;
 }
 
+/**
+ * @description Executes SQL against the Oracle database inside the Docker container.
+ * Wraps the SQL with SET LINESIZE/PAGESIZE/TIMING settings and pipes it to sqlplus via stdin.
+ * @param {string} sql - The SQL statement(s) to execute
+ * @returns {Promise<DockerExecResult>} Result with output text, success flag, and execution time in ms
+ */
 export async function executeSql(sql: string): Promise<DockerExecResult> {
   const start = Date.now();
 
@@ -82,6 +94,11 @@ EXIT;
   });
 }
 
+/**
+ * @description Checks if the Oracle Docker container is running and the database is responding.
+ * First verifies the container state via `docker inspect`, then executes `SELECT 1 FROM DUAL`.
+ * @returns {Promise<{ containerRunning: boolean, oracleReady: boolean }>}
+ */
 export async function checkHealth(): Promise<{
   containerRunning: boolean;
   oracleReady: boolean;

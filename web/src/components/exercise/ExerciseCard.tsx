@@ -16,6 +16,15 @@ import { useExerciseProgress } from "@/hooks/useExerciseProgress";
 import { ProgressBar } from "../common/ProgressBar";
 import { cn } from "@/lib/utils";
 
+/**
+ * @description Card component for the exercise listing page.
+ * Displays exercise title, description, difficulty badge, estimated time,
+ * step count, and a progress bar if the exercise has been started.
+ * @param {ExerciseCardProps} props
+ * @param {Exercise} props.exercise - Exercise metadata and steps
+ * @param {number} props.index - Zero-based index for display numbering
+ */
+
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Search,
   ListPlus,

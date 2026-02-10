@@ -3,8 +3,16 @@
 import { useState, useEffect, useCallback } from "react";
 import type { ExerciseProgress } from "@/types";
 
+/**
+ * @description React hook for tracking exercise progress via localStorage.
+ * Provides methods to mark steps complete/incomplete, track last visited step,
+ * and compute completion percentages per exercise or overall.
+ * @param {string} [slug] - Optional exercise slug to scope progress operations to
+ */
+
 const STORAGE_KEY = "oracle-tuning-lab-progress";
 
+/** @description Loads saved progress from localStorage. Returns empty array on SSR or parse error. */
 function loadProgress(): ExerciseProgress[] {
   if (typeof window === "undefined") return [];
   try {

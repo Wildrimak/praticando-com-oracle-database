@@ -2,6 +2,12 @@
 
 import { cn } from "@/lib/utils";
 
+/**
+ * @description Visual representation of an Oracle execution plan.
+ * Parses plan text output and renders each operation as a color-coded card:
+ * red for Full Table Scan, green for Index Scan, yellow for Hash Join, blue for Sort.
+ */
+
 interface PlanLine {
   operation: string;
   cost?: string;

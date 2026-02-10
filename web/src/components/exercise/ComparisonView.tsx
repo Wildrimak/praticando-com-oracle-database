@@ -2,6 +2,15 @@
 
 import { cn } from "@/lib/utils";
 
+/**
+ * @description Side-by-side comparison view for before/after SQL execution results.
+ * Shows two terminal-style panels with colored indicators (red = before, green = after).
+ * @param {ComparisonViewProps} props
+ * @param {string} props.beforeOutput - SQL output before optimization
+ * @param {string} props.afterOutput - SQL output after optimization
+ * @param {string} props.beforeLabel - Label for the "before" panel
+ * @param {string} props.afterLabel - Label for the "after" panel
+ */
 interface ComparisonViewProps {
   beforeOutput: string;
   afterOutput: string;

@@ -1,3 +1,4 @@
+/** @description Exercise 2: Creating and analyzing indexes — selectivity, composite indexes, covering indexes, and ORDER BY optimization. */
 import type { Exercise } from "@/types";
 
 export const exercise: Exercise = {

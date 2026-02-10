@@ -8,6 +8,12 @@ import { useExerciseProgress } from "@/hooks/useExerciseProgress";
 import type { Locale } from "@/types";
 import { cn } from "@/lib/utils";
 
+/**
+ * @description Left sidebar listing all exercises with completion indicators.
+ * Highlights the currently active exercise and shows progress bars for partially completed ones.
+ * @param {SidebarProps} props
+ * @param {string} [props.currentSlug] - Slug of the currently active exercise
+ */
 interface SidebarProps {
   currentSlug?: string;
 }

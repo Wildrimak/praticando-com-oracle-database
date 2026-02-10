@@ -1,3 +1,4 @@
+/** @description Exercise 1: Introduction to EXPLAIN PLAN, execution plan reading, and key metrics (Cost, Rows, Operations). */
 import type { Exercise } from "@/types";
 
 export const exercise: Exercise = {

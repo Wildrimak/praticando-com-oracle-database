@@ -1,3 +1,7 @@
+/**
+ * @description Landing page with hero section, feature cards, exercise preview grid,
+ * and setup instructions. Bilingual (pt-BR / en) via next-intl.
+ */
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import {

@@ -5,6 +5,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { Lightbulb, Target } from "lucide-react";
 import type { ExerciseStep, Locale } from "@/types";
 
+/**
+ * @description Renders exercise step content from bilingual Markdown.
+ * Includes custom-styled markdown components (code, tables, blockquotes)
+ * and optional hint/challenge callout boxes at the bottom.
+ * @param {StepContentProps} props
+ * @param {ExerciseStep} props.step - The step data with bilingual content, hint, and challenge
+ */
 interface StepContentProps {
   step: ExerciseStep;
 }

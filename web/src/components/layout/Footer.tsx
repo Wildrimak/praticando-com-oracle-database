@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Database } from "lucide-react";
 
+/** @description Simple footer with Oracle Tuning Lab branding and GitHub link. */
 export function Footer() {
   const t = useTranslations("common");
 

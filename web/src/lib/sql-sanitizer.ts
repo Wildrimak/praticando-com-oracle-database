@@ -1,3 +1,10 @@
+/**
+ * @description SQL sanitizer that validates user-submitted SQL against a blocklist/allowlist.
+ * Blocks DDL, DML writes, OS commands, dangerous PL/SQL, and system modifications.
+ * Allows SELECT, EXPLAIN PLAN, DBMS_XPLAN, SET AUTOTRACE, and safe ALTER SESSION commands.
+ * @module sql-sanitizer
+ */
+
 const BLOCKED_PATTERNS = [
   // DDL
   /\b(DROP|TRUNCATE|ALTER\s+SYSTEM|ALTER\s+TABLE|CREATE\s+TABLE|CREATE\s+USER|GRANT|REVOKE)\b/i,
@@ -28,6 +35,15 @@ export interface SanitizeResult {
   reason?: string;
 }
 
+/**
+ * @description Validates a SQL string against blocked/allowed patterns.
+ * Splits into individual statements and checks each one.
+ * @param {string} sql - The SQL string to validate
+ * @returns {SanitizeResult} Object with `safe` boolean and optional `reason` string
+ * @example
+ * sanitizeSql("SELECT * FROM clientes") // { safe: true }
+ * sanitizeSql("DROP TABLE clientes")    // { safe: false, reason: "Blocked command detected: ..." }
+ */
 export function sanitizeSql(sql: string): SanitizeResult {
   if (!sql || sql.trim().length === 0) {
     return { safe: false, reason: "Empty SQL" };

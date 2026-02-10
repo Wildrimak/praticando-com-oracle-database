@@ -7,6 +7,10 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { ExerciseWorkspace } from "@/components/exercise/ExerciseWorkspace";
 import { getExerciseBySlug } from "@/content/exercises";
 
+/**
+ * @description Dynamic exercise page. Resolves the exercise by slug from the URL,
+ * renders Header + Sidebar + ExerciseWorkspace. Returns 404 if slug is invalid.
+ */
 export default function ExercisePage({
   params,
 }: {

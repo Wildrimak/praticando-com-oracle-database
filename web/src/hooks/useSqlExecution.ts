@@ -3,6 +3,11 @@
 import { useState, useCallback } from "react";
 import type { SqlExecutionResult } from "@/types";
 
+/**
+ * @description React hook for executing SQL queries against the Oracle database.
+ * Sends SQL to /api/execute, tracks execution state, stores results, and maintains a history.
+ * @returns {{ execute: (sql: string) => Promise<SqlExecutionResult>, isExecuting: boolean, result: SqlExecutionResult | null, history: SqlExecutionResult[], clearResult: () => void }}
+ */
 export function useSqlExecution() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [result, setResult] = useState<SqlExecutionResult | null>(null);

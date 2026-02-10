@@ -8,6 +8,7 @@ import { exercises } from "@/content/exercises";
 import { useExerciseProgress } from "@/hooks/useExerciseProgress";
 import { ProgressBar } from "@/components/common/ProgressBar";
 
+/** @description Exercise listing page showing all 5 exercises as cards with an overall progress bar. */
 export default function ExercisesPage() {
   const t = useTranslations("common");
   const { getOverallPercentage } = useExerciseProgress();

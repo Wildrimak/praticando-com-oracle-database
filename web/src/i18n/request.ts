@@ -1,3 +1,7 @@
+/**
+ * @description Server-side i18n request configuration.
+ * Resolves the locale from the request, falls back to pt-BR, and loads the JSON messages.
+ */
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
 

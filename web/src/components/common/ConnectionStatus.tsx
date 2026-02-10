@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Wifi, WifiOff, Loader2 } from "lucide-react";
 
+/**
+ * @description Oracle database connection status indicator in the header.
+ * Polls /api/health every 30 seconds and shows a colored icon:
+ * spinning (checking), green wifi (connected), red wifi (disconnected).
+ * Click to manually recheck.
+ */
 export function ConnectionStatus() {
   const t = useTranslations("common");
   const [status, setStatus] = useState<"checking" | "connected" | "disconnected">("checking");
